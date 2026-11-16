@@ -1,18 +1,18 @@
-// Driver for the markdown-render-speed entry: reads every case from
-// /input/cases.json, renders each one with parse() from parse.js, and writes
-// /output/html.json (a JSON array of the HTML strings, in the cases' order).
-// Outside a container MAKEFUN_INPUT_DIR and MAKEFUN_OUTPUT_DIR stand in for
-// /input and /output.
+// Entry driver: load every test case from the input directory, render each
+// markdown string through parse() in parse.js, and dump the resulting HTML
+// strings (same order as the cases) as a JSON array in the output directory.
+// Inside the scoring container the paths are /input and /output; locally,
+// MAKEFUN_INPUT_DIR / MAKEFUN_OUTPUT_DIR let the caller override them.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from './parse.js';
 
-const INPUT_DIR = process.env.MAKEFUN_INPUT_DIR ?? '/input';
-const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+const inputDir = process.env.MAKEFUN_INPUT_DIR ?? '/input';
+const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-const cases = JSON.parse(readFileSync(join(INPUT_DIR, 'cases.json'), 'utf8')) as { id: string; markdown: string }[];
+const cases = JSON.parse(readFileSync(join(inputDir, 'cases.json'), 'utf8')) as Array<{ id: string; markdown: string }>;
 
-const html: string[] = [];
-for (const c of cases) html.push(parse(c.markdown));
-writeFileSync(join(OUTPUT_DIR, 'html.json'), JSON.stringify(html));
+const rendered: string[] = [];
+for (const item of cases) rendered.push(parse(item.markdown));
+writeFileSync(join(outputDir, 'html.json'), JSON.stringify(rendered));
